@@ -1,6 +1,5 @@
 package com.task_list;
 
-// Imports
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.FileReader;
@@ -11,18 +10,12 @@ public class App
 {
     public static void main( String[] args )
     {
-        // Initialize a scanner object
         Scanner input = new Scanner(System.in);
 
         while (true) {
-            // Print a prompt
             System.out.print(">> ");
 
-            // Fetch a command
             String command = input.nextLine();
-
-            // Debug Print the command
-            //System.out.println("Command: " + command);
 
             if (command.startsWith("add")) {
                 String[] split = command.split(" ");
@@ -34,7 +27,6 @@ public class App
                     FileWriter writer = new FileWriter("data.txt", true);
                     writer.append(to_add + "\n");
                     writer.close();
-                    //System.out.println("Saved task successfully!");
                 } catch (IOException e) {
                     System.out.println("An error occurred.");
                     e.printStackTrace();
@@ -59,20 +51,53 @@ public class App
             } else if (command.startsWith("complete")) {
                 String[] split = command.split(" ");
 
+                if (split.length < 2) {
+                    System.out.println("Please specify a task to complete.");
+                    continue;
+                }
+
                 String to_complete = split[1];
 
-                FileReader reader = new FileReader("data.txt");
-                FileWriter writer = new FileWriter("data.txt");
+                try {
+                    FileReader reader = new FileReader("data.txt");
+                    StringBuilder content = new StringBuilder();
+                    int ch;
+                    while ((ch = reader.read()) != -1) {
+                        content.append((char) ch);
+                    }
+                    reader.close();
 
-                // Main removal logic here...
+                    String[] tasks = content.toString().split("\n");
+                    StringBuilder updatedTasks = new StringBuilder();
+                    for (String task : tasks) {
+                        if (!task.trim().equals(to_complete)) {
+                            updatedTasks.append(task).append("\n");
+                        }
+                    }
 
-                reader.close();
-                writer.close();
+                    FileWriter writer = new FileWriter("data.txt");
+                    writer.write(updatedTasks.toString());
+                    writer.close();
+
+                    System.out.println("Completed and removed task: " + to_complete);
+                } catch (IOException e) {
+                    System.out.println("An error occurred while completing the task.");
+                    e.printStackTrace();
+                }
+            } else if (command.equals("clear")) {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            } else if (command.equals("help")) {
+                System.out.println("Available Commands: ");
+                System.out.println("- help: Shows this message");
+                System.out.println("- exit: Exit the program");
+                System.out.println("- clear: Clear the console");
+                System.out.println("- complete <task_name>: Complete and remove a task");
+                System.out.println("- view tasks: Shows all incomplete tasks");
+                System.out.println("- add <task_name>: Add a new task to complete");
             } else {
-                System.out.println("Invalid command!");
+                System.out.println("Invalid command: " + command);
             }
-
-            // Close the scanner to prevent memory leaks
         }
         input.close(); 
     }
